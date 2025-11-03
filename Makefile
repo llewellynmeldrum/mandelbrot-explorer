@@ -3,11 +3,12 @@ all: $(EXE)
 
 # ===== MAKE VARIABLES ===== 
 EXE_NAME :=compute_mult
+MAKEFLAGS+= -j10
 CXX	:=clang++
 STD	:= -std=c++17 -O3 -Ofast
-CCFLAGS	:=-Iinclude -Ithirdparty/metal-cpp $(shell sdl2-config --cflags) $(STD)
+CCFLAGS	:=-Iinclude -Ithirdparty/metal-cpp $(shell pkg-config --cflags sdl2 SDL2_ttf) $(STD)
 LDFLAGS	:=-framework Metal -framework Foundation -framework QuartzCore $(STD)
-LDLIBS	:=$(shell sdl2-config --libs)
+LDLIBS	:=$(shell pkg-config --libs sdl2 SDL2_ttf)
 EXE_DIR	:=bin
 SRC_DIR	:=src
 OBJ_DIR :=build
@@ -19,9 +20,11 @@ EXE 	:=$(EXE_DIR)/$(EXE_NAME)
 # p.s: read all their values at compile time with 'make [h|help|?]'
 
 # ===== ENV VARIABLES ===== 
-OBJC_DEBUG_MISSING_POOLS:=YES
-MTL_HUD_ENABLED		:=1
-MTL_HUD_INSIGHTS_ENABLED:=1
+OBJC_DEBUG_MISSING_POOLS=YES
+MTL_HUD_ENABLED		=1
+MTL_HUG_LOG_ENABLED = 1
+MTL_HUD_LOG_SHADER_ENABLED=1
+MTL_HUD_INSIGHTS_ENABLED=1
 
 
 # pattern rule to build src files -> obj files: 	" COMPILE SRC to OBJ " 

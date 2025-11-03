@@ -84,6 +84,12 @@ void dprintbuf(const char* title, const char* buf, ssize_t sz, ssize_t linec_to_
 	}while(0)
 
 #endif
+#define logcustom(error_type, fmt, ...) do{					\
+	log("\n\033[31;1m[%s] ->\033[0m \033[31m",error_type);	\
+	log(fmt, ##__VA_ARGS__);				\
+	log("\033[0m");						\
+	}while(0)
+
 #define logsdl(fmt, ...) do{					\
 	log("\n\033[31;1m[SDL ERROR] ->\033[0m \033[31m");	\
 	log(fmt, ##__VA_ARGS__);				\
@@ -128,12 +134,15 @@ void dprintbuf(const char* title, const char* buf, ssize_t sz, ssize_t linec_to_
 
 #define SET_CLEAR "\033[0m"
 
-#define SET_WHITE "\033[37m"
-#define SET_RED "\033[1;31m"
-#define SET_GREEN "\033[1;32m"
-#define SET_BLUE "\033[0;34m"
-#define SET_PURPLE "\033[0;35m"
-#define SET_ORANGE "\033[48:2:255:165:1m"
+#define SET_WHITE 	"\033[37m"
+#define SET_RED 	"\033[31m"
+#define SET_GREEN 	"\033[32m"
+#define SET_YELLOW	"\033[33m"
+#define SET_BLUE 	"\033[34m"
+#define SET_PURPLE 	"\033[35m"
+#define SET_DARKGREEN	"\033[36m"
+#define SET_GREY	"\033[37m"
+#define SET_ORANGE 	"\033[48:2:255:165:1m"
 
 #define SET_BGWHITE 	"\033[51m"
 #define SET_BGRED 	"\033[41m"

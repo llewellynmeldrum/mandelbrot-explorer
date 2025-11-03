@@ -1,0 +1,97 @@
+#include "string_extended.hpp"
+
+#include <limits.h>
+#include <sys/ioctl.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
+#include "log.h"
+
+
+#define LOWER_SEPARATOR_CH "▔"
+#define UPPER_SEPARATOR_CH "▁"
+
+#define LOG_SYMBOL_REPL(symbol, repl)do{\
+	log("(" SET_UNDERBOLD symbol SET_CLEAR ")='" SET_PURPLE repl SET_CLEAR "', ");\
+	}while(0);
+
+bool show_pretty_print_guide = true;
+
+ssize_t GET_TERM_COLS() {
+	struct winsize w;
+	ioctl(0, TIOCGWINSZ, &w);
+	return (ssize_t)w.ws_col;
+}
+void LOG_UPPER_SEPARATOR() {
+	for (int i = 0; i < GET_TERM_COLS(); i++)
+		log("%s", UPPER_SEPARATOR_CH);
+	log("\r");
+}
+void LOG_LOWER_SEPARATOR() {
+	for (int i = 0; i < GET_TERM_COLS(); i++)
+		log("%s", LOWER_SEPARATOR_CH);
+	log("\r");
+}
+
+/* Whether or not to print a \n IFF CRLF (windows style), or to ignore CR.*/
+#define DBPRINTBUF_CRLF_ONLY false
+
+// tries to show nonprintable characters and escape escape sequences with utf-8
+void dprintbuf(const char* title, const char* buf, ssize_t sz, ssize_t lines = 0) {
+	log(SET_UNDERBOLD);
+	log(SET_UNDERBOLD "%s: ", title);
+	if (lines > 0) {
+		log("PRINTING FIRST %zu LINES:%s\n", lines, SET_CLEAR);
+	} else {
+		log(SET_CLEAR "\n");
+		lines = LONG_MAX;
+	}
+
+	LOG_UPPER_SEPARATOR();
+	ssize_t lc = 0;
+	bool queue_newline = true;
+	for (int i = 0; i < sz; i++) {
+		char prevch = (i - 1 >= 0) ? buf[i - 1] : '\0';
+		char ch = buf[i];
+		char nextch = (i + 1 < sz) ? buf[i + 1] : '\0';
+
+		if (queue_newline) {
+			queue_newline = false;
+			if (++lc > lines) break;
+
+			log(SET_BOLD SET_REV "\n%02zu:%s ", lc, SET_CLEAR);
+		}
+
+		switch (ch) {
+		case ' ':
+			log(SET_UNDERBOLD " " SET_CLEAR );
+			break;
+
+		// only CRLF should print newline
+		case '\n':
+			log(SET_UNDERBOLD "↓" SET_CLEAR );
+			queue_newline = (DBPRINTBUF_CRLF_ONLY ) ? (prevch == '\r') : (true);
+			break;
+		case '\r':
+			log(SET_UNDERBOLD "↵" SET_CLEAR );
+			break;
+		default:
+			log("%c", ch);
+			break;
+		}
+		if (nextch == '\0') log(SET_UNDERBOLD "[\\0]" SET_CLEAR );
+	}
+
+
+	if (lc <= lines) log("\n");
+	LOG_LOWER_SEPARATOR();
+	log("\n");
+	if (show_pretty_print_guide) {
+		log(SET_CLEAR);
+		LOG_SYMBOL_REPL(" ", "SPACE");
+		LOG_SYMBOL_REPL("↓", "\\n");
+		LOG_SYMBOL_REPL("↵", "\\r");
+		log("\n");
+		show_pretty_print_guide = false;
+	}
+}

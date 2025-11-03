@@ -34,6 +34,7 @@ Interacting with metal through the more standard swift/obj-c/xcode editor toolch
 
 # References:
 [https://metaltutorial.com/Setup/](https://metaltutorial.com/Setup/)
+
 [apple metal docs](https://developer.apple.com/metal/Metal-Shading-Language-Specification.pdf)
 
 ### ps. commits:
